@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QA Pilot — Demo App</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --border: #2d3147;
+      --accent: #6366f1;
+      --accent-hover: #4f52d9;
+      --danger: #ef4444;
+      --success: #22c55e;
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --radius: 8px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      padding: 0;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    header h1 { font-size: 1.2rem; font-weight: 700; color: var(--accent); }
+    header span { font-size: 0.8rem; color: var(--muted); }
+
+    /* ── Layout ── */
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+    @media (max-width: 700px) { .container { grid-template-columns: 1fr; } }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+    }
+    .card h2 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 1.2rem;
+    }
+
+    /* ── Form elements ── */
+    label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 0.35rem;
+    }
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-size: 0.9rem;
+      padding: 0.6rem 0.85rem;
+      outline: none;
+      transition: border-color 0.15s;
+      margin-bottom: 1rem;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+    textarea { resize: vertical; min-height: 80px; }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.55rem 1.1rem;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity 0.15s, background 0.15s;
+    }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover:not(:disabled) { background: var(--accent-hover); }
+    .btn-danger  { background: var(--danger); color: #fff; }
+    .btn-danger:hover:not(:disabled) { opacity: 0.85; }
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .btn-ghost:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+    .btn-success { background: var(--success); color: #fff; }
+
+    /* ── Todo list ── */
+    .todo-input-row { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+    .todo-input-row input { margin-bottom: 0; flex: 1; }
+    #todo-list { list-style: none; }
+    #todo-list li {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.6rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    #todo-list li:last-child { border-bottom: none; }
+    #todo-list li.done span { text-decoration: line-through; color: var(--muted); }
+    #todo-list li span { flex: 1; font-size: 0.9rem; }
+    #todo-count { font-size: 0.8rem; color: var(--muted); margin-top: 0.75rem; }
+
+    /* ── Checkbox group ── */
+    .check-group { display: flex; flex-direction: column; gap: 0.75rem; }
+    .check-item { display: flex; align-items: center; gap: 0.6rem; cursor: pointer; }
+    .check-item input[type="checkbox"] {
+      width: 1rem; height: 1rem;
+      accent-color: var(--accent);
+      cursor: pointer;
+      margin-bottom: 0;
+    }
+    .check-item label { margin-bottom: 0; cursor: pointer; font-size: 0.9rem; color: var(--text); }
+    #checkbox-result {
+      margin-top: 1rem;
+      font-size: 0.82rem;
+      color: var(--accent);
+      min-height: 1.2em;
+    }
+
+    /* ── Counter ── */
+    .counter-display {
+      font-size: 3.5rem;
+      font-weight: 700;
+      text-align: center;
+      color: var(--accent);
+      margin: 1rem 0;
+      font-variant-numeric: tabular-nums;
+    }
+    .counter-controls { display: flex; gap: 0.5rem; justify-content: center; }
+
+    /* ── Alert / feedback ── */
+    .alert {
+      padding: 0.65rem 1rem;
+      border-radius: var(--radius);
+      font-size: 0.85rem;
+      margin-top: 0.75rem;
+      display: none;
+    }
+    .alert.success { background: #14532d33; border: 1px solid var(--success); color: var(--success); display: block; }
+    .alert.error   { background: #7f1d1d33; border: 1px solid var(--danger);  color: var(--danger);  display: block; }
+
+    /* ── Login form ── */
+    #login-status { font-size: 0.85rem; margin-top: 0.5rem; min-height: 1.2em; }
+    #login-status.ok  { color: var(--success); }
+    #login-status.err { color: var(--danger);  }
+
+    /* ── Toggle switch ── */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .toggle-row:last-child { border-bottom: none; }
+    .toggle-row span { font-size: 0.9rem; }
+    .toggle {
+      position: relative;
+      width: 2.5rem;
+      height: 1.4rem;
+      cursor: pointer;
+    }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute;
+      inset: 0;
+      background: var(--border);
+      border-radius: 999px;
+      transition: background 0.2s;
+    }
+    .toggle-slider::before {
+      content: "";
+      position: absolute;
+      width: 1rem; height: 1rem;
+      left: 0.2rem; top: 0.2rem;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.2s;
+    }
+    .toggle input:checked + .toggle-slider { background: var(--accent); }
+    .toggle input:checked + .toggle-slider::before { transform: translateX(1.1rem); }
+    #toggle-status { margin-top: 0.75rem; font-size: 0.82rem; color: var(--muted); }
+
+    /* ── Select / dropdown ── */
+    #select-result { font-size: 0.82rem; color: var(--accent); margin-top: -0.5rem; min-height: 1.2em; }
+
+    /* ── Tab panel (full width) ── */
+    .full-width { grid-column: 1 / -1; }
+    .tabs { display: flex; gap: 0.25rem; border-bottom: 1px solid var(--border); margin-bottom: 1.25rem; }
+    .tab-btn {
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s;
+      margin-bottom: -1px;
+    }
+    .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .tab-panel p { font-size: 0.9rem; color: var(--muted); line-height: 1.7; }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.75rem;
+      width: min(90vw, 420px);
+    }
+    .modal h3 { margin-bottom: 0.75rem; }
+    .modal p { font-size: 0.875rem; color: var(--muted); margin-bottom: 1.25rem; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 0.5rem; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🧪 QA Pilot — Demo App</h1>
+  <span>Interactive elements for automated E2E testing</span>
+</header>
+
+<div class="container">
+
+  <!-- ── 1. Login Form ─────────────────────────────────────────────── -->
+  <div class="card">
+    <h2>Login Form</h2>
+    <form id="login-form" novalidate>
+      <label for="login-email">Email</label>
+      <input
+        type="email"
+        id="login-email"
+        data-testid="login-email"
+        placeholder="you@example.com"
+        autocomplete="email"
+      />
+
+      <label for="login-password">Password</label>
+      <input
+        type="password"
+        id="login-password"
+        data-testid="login-password"
+        placeholder="Enter password"
+        autocomplete="current-password"
+      />
+
+      <button
+        type="submit"
+        class="btn btn-primary"
+        data-testid="login-submit"
+        style="width:100%"
+      >
+        Sign In
+      </button>
+    </form>
+    <p id="login-status" data-testid="login-status"></p>
+  </div>
+
+  <!-- ── 2. Counter ────────────────────────────────────────────────── -->
+  <div class="card">
+    <h2>Counter</h2>
+    <div class="counter-display" data-testid="counter-value">0</div>
+    <div class="counter-controls">
+      <button class="btn btn-ghost" data-testid="counter-decrement" onclick="adjustCounter(-1)">−</button>
+      <button class="btn btn-primary" data-testid="counter-increment" onclick="adjustCounter(1)">+</button>
+      <button class="btn btn-danger" data-testid="counter-reset" onclick="resetCounter()">Reset</button>
+    </div>
+  </div>
+
+  <!-- ── 3. Todo List ──────────────────────────────────────────────── -->
+  <div class="card">
+    <h2>Todo List</h2>
+    <div class="todo-input-row">
+      <input
+        type="text"
+        id="todo-input"
+        data-testid="todo-input"
+        placeholder="What needs to be done?"
+      />
+      <button
+        class="btn btn-primary"
+        data-testid="todo-add-btn"
+        onclick="addTodo()"
+      >
+        Add
+      </button>
+    </div>
+    <ul id="todo-list" data-testid="todo-list"></ul>
+    <p id="todo-count" data-testid="todo-count">0 items</p>
+  </div>
+
+  <!-- ── 4. Checkboxes ─────────────────────────────────────────────── -->
+  <div class="card">
+    <h2>Checkboxes</h2>
+    <div class="check-group">
+      <label class="check-item">
+        <input type="checkbox" data-testid="check-unit"        onchange="updateCheckResult()" /> Unit Tests
+      </label>
+      <label class="check-item">
+        <input type="checkbox" data-testid="check-integration" onchange="updateCheckResult()" /> Integration Tests
+      </label>
+      <label class="check-item">
+        <input type="checkbox" data-testid="check-e2e"         onchange="updateCheckResult()" /> E2E Tests
+      </label>
+      <label class="check-item">
+        <input type="checkbox" data-testid="check-performance" onchange="updateCheckResult()" /> Performance Tests
+      </label>
+    </div>
+    <p id="checkbox-result" data-testid="checkbox-result"></p>
+  </div>
+
+  <!-- ── 5. Contact Form ───────────────────────────────────────────── -->
+  <div class="card">
+    <h2>Contact Form</h2>
+    <form id="contact-form" novalidate>
+      <label for="contact-name">Full Name</label>
+      <input
+        type="text"
+        id="contact-name"
+        data-testid="contact-name"
+        placeholder="Jane Smith"
+      />
+
+      <label for="contact-subject">Subject</label>
+      <select id="contact-subject" data-testid="contact-subject" onchange="showSelectResult()">
+        <option value="">— Select a subject —</option>
+        <option value="bug">Bug Report</option>
+        <option value="feature">Feature Request</option>
+        <option value="question">Question</option>
+        <option value="other">Other</option>
+      </select>
+      <p id="select-result" data-testid="select-result"></p>
+
+      <label for="contact-message">Message</label>
+      <textarea
+        id="contact-message"
+        data-testid="contact-message"
+        placeholder="Describe your issue or request…"
+      ></textarea>
+
+      <button
+        type="submit"
+        class="btn btn-primary"
+        data-testid="contact-submit"
+        style="width:100%"
+      >
+        Send Message
+      </button>
+    </form>
+    <div id="contact-alert" class="alert" data-testid="contact-alert"></div>
+  </div>
+
+  <!-- ── 6. Toggle switches ────────────────────────────────────────── -->
+  <div class="card">
+    <h2>Settings Toggles</h2>
+    <div class="toggle-row">
+      <span>Email Notifications</span>
+      <label class="toggle">
+        <input type="checkbox" data-testid="toggle-email" checked onchange="updateToggles()" />
+        <div class="toggle-slider"></div>
+      </label>
+    </div>
+    <div class="toggle-row">
+      <span>Dark Mode</span>
+      <label class="toggle">
+        <input type="checkbox" data-testid="toggle-dark" onchange="updateToggles()" />
+        <div class="toggle-slider"></div>
+      </label>
+    </div>
+    <div class="toggle-row">
+      <span>Auto-run Tests</span>
+      <label class="toggle">
+        <input type="checkbox" data-testid="toggle-autorun" onchange="updateToggles()" />
+        <div class="toggle-slider"></div>
+      </label>
+    </div>
+    <p id="toggle-status" data-testid="toggle-status">Email notifications: ON</p>
+  </div>
+
+  <!-- ── 7. Number input + disabled button ─────────────────────────── -->
+  <div class="card">
+    <h2>Quantity Selector</h2>
+    <label for="quantity-input">Quantity (1–10)</label>
+    <input
+      type="number"
+      id="quantity-input"
+      data-testid="quantity-input"
+      min="1" max="10" value="1"
+      oninput="validateQuantity()"
+    />
+    <button
+      class="btn btn-success"
+      id="order-btn"
+      data-testid="order-btn"
+      onclick="placeOrder()"
+      style="width:100%"
+    >
+      Place Order
+    </button>
+    <div id="order-alert" class="alert" data-testid="order-alert"></div>
+  </div>
+
+  <!-- ── 8. Tab panel (full width) ─────────────────────────────────── -->
+  <div class="card full-width">
+    <h2>Tab Panel</h2>
+    <div class="tabs">
+      <button class="tab-btn active" data-testid="tab-overview"  onclick="switchTab('overview', this)">Overview</button>
+      <button class="tab-btn"        data-testid="tab-details"   onclick="switchTab('details', this)">Details</button>
+      <button class="tab-btn"        data-testid="tab-history"   onclick="switchTab('history', this)">History</button>
+    </div>
+    <div id="panel-overview" class="tab-panel active" data-testid="panel-overview">
+      <p>This is the <strong>Overview</strong> tab. It shows a summary of all activity.</p>
+    </div>
+    <div id="panel-details" class="tab-panel" data-testid="panel-details">
+      <p>The <strong>Details</strong> tab shows granular information about each test run.</p>
+    </div>
+    <div id="panel-history" class="tab-panel" data-testid="panel-history">
+      <p>The <strong>History</strong> tab shows a log of past events and state changes.</p>
+    </div>
+
+    <div style="margin-top:1.5rem; display:flex; gap:0.75rem; flex-wrap:wrap;">
+      <button class="btn btn-primary" data-testid="open-modal-btn" onclick="openModal()">Open Modal</button>
+      <button class="btn btn-ghost"   data-testid="disabled-btn"   disabled>Disabled Button</button>
+      <button class="btn btn-danger"  data-testid="clear-all-btn"  onclick="clearAll()">Clear All Data</button>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<!-- ── Modal ─────────────────────────────────────────────────────────── -->
+<div class="modal-overlay" id="modal-overlay" data-testid="modal-overlay">
+  <div class="modal" data-testid="modal">
+    <h3>Confirm Action</h3>
+    <p>This is a confirmation modal. You can confirm or cancel the action.</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost"   data-testid="modal-cancel"  onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" data-testid="modal-confirm" onclick="confirmModal()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── Counter ────────────────────────────────────────────────────────
+  let count = 0;
+  function adjustCounter(delta) {
+    count += delta;
+    document.querySelector('[data-testid="counter-value"]').textContent = count;
+  }
+  function resetCounter() {
+    count = 0;
+    document.querySelector('[data-testid="counter-value"]').textContent = 0;
+  }
+
+  // ── Todo ───────────────────────────────────────────────────────────
+  let todos = [];
+  function addTodo() {
+    const input = document.getElementById('todo-input');
+    const text = input.value.trim();
+    if (!text) return;
+    const id = Date.now();
+    todos.push({ id, text, done: false });
+    input.value = '';
+    renderTodos();
+  }
+  function toggleTodo(id) {
+    todos = todos.map(t => t.id === id ? { ...t, done: !t.done } : t);
+    renderTodos();
+  }
+  function deleteTodo(id) {
+    todos = todos.filter(t => t.id !== id);
+    renderTodos();
+  }
+  function renderTodos() {
+    const list = document.getElementById('todo-list');
+    list.innerHTML = todos.map(t => `
+      <li class="${t.done ? 'done' : ''}" data-testid="todo-item-${t.id}">
+        <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTodo(${t.id})"
+               data-testid="todo-check-${t.id}" />
+        <span data-testid="todo-text-${t.id}">${t.text}</span>
+        <button class="btn btn-danger" style="padding:0.2rem 0.6rem;font-size:0.75rem"
+                onclick="deleteTodo(${t.id})" data-testid="todo-delete-${t.id}">✕</button>
+      </li>`).join('');
+    const remaining = todos.filter(t => !t.done).length;
+    document.getElementById('todo-count').textContent =
+      `${remaining} item${remaining !== 1 ? 's' : ''} remaining`;
+  }
+  // Enter key support
+  document.getElementById('todo-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') addTodo();
+  });
+
+  // ── Login ──────────────────────────────────────────────────────────
+  document.getElementById('login-form').addEventListener('submit', e => {
+    e.preventDefault();
+    const email = document.getElementById('login-email').value.trim();
+    const pass  = document.getElementById('login-password').value;
+    const status = document.getElementById('login-status');
+    if (!email || !pass) {
+      status.textContent = 'Please fill in all fields.';
+      status.className = 'err';
+      return;
+    }
+    if (email === 'test@example.com' && pass === 'password123') {
+      status.textContent = '✓ Logged in successfully!';
+      status.className = 'ok';
+    } else {
+      status.textContent = '✗ Invalid email or password.';
+      status.className = 'err';
+    }
+  });
+
+  // ── Checkboxes ─────────────────────────────────────────────────────
+  function updateCheckResult() {
+    const labels = ['Unit Tests', 'Integration Tests', 'E2E Tests', 'Performance Tests'];
+    const keys   = ['check-unit', 'check-integration', 'check-e2e', 'check-performance'];
+    const selected = keys
+      .map((k, i) => document.querySelector(`[data-testid="${k}"]`).checked ? labels[i] : null)
+      .filter(Boolean);
+    document.getElementById('checkbox-result').textContent =
+      selected.length ? `Selected: ${selected.join(', ')}` : '';
+  }
+
+  // ── Contact Form ───────────────────────────────────────────────────
+  function showSelectResult() {
+    const val = document.getElementById('contact-subject').value;
+    document.getElementById('select-result').textContent = val ? `Category: ${val}` : '';
+  }
+  document.getElementById('contact-form').addEventListener('submit', e => {
+    e.preventDefault();
+    const name    = document.getElementById('contact-name').value.trim();
+    const subject = document.getElementById('contact-subject').value;
+    const message = document.getElementById('contact-message').value.trim();
+    const alert   = document.getElementById('contact-alert');
+    if (!name || !subject || !message) {
+      alert.className = 'alert error';
+      alert.textContent = 'Please fill in all fields.';
+      return;
+    }
+    alert.className = 'alert success';
+    alert.textContent = `✓ Message sent! We'll reply to "${name}" soon.`;
+    e.target.reset();
+    document.getElementById('select-result').textContent = '';
+  });
+
+  // ── Toggles ────────────────────────────────────────────────────────
+  function updateToggles() {
+    const email   = document.querySelector('[data-testid="toggle-email"]').checked;
+    const dark    = document.querySelector('[data-testid="toggle-dark"]').checked;
+    const autorun = document.querySelector('[data-testid="toggle-autorun"]').checked;
+    const parts = [];
+    if (email)   parts.push('Email: ON');
+    if (dark)    parts.push('Dark: ON');
+    if (autorun) parts.push('Auto-run: ON');
+    document.getElementById('toggle-status').textContent =
+      parts.length ? parts.join(' · ') : 'All settings OFF';
+  }
+
+  // ── Quantity / Order ───────────────────────────────────────────────
+  function validateQuantity() {
+    const val = parseInt(document.getElementById('quantity-input').value, 10);
+    const btn = document.getElementById('order-btn');
+    btn.disabled = isNaN(val) || val < 1 || val > 10;
+  }
+  function placeOrder() {
+    const qty   = document.getElementById('quantity-input').value;
+    const alert = document.getElementById('order-alert');
+    alert.className = 'alert success';
+    alert.textContent = `✓ Order placed for ${qty} unit(s)!`;
+    document.getElementById('quantity-input').value = 1;
+    validateQuantity();
+  }
+
+  // ── Tabs ───────────────────────────────────────────────────────────
+  function switchTab(name, btn) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(`panel-${name}`).classList.add('active');
+  }
+
+  // ── Modal ──────────────────────────────────────────────────────────
+  function openModal()    { document.getElementById('modal-overlay').classList.add('open'); }
+  function closeModal()   { document.getElementById('modal-overlay').classList.remove('open'); }
+  function confirmModal() {
+    closeModal();
+    document.querySelector('[data-testid="order-alert"]').className = 'alert success';
+    document.querySelector('[data-testid="order-alert"]').textContent = '✓ Action confirmed via modal.';
+  }
+  document.getElementById('modal-overlay').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeModal();
+  });
+
+  // ── Clear All ──────────────────────────────────────────────────────
+  function clearAll() {
+    todos = [];
+    renderTodos();
+    count = 0;
+    document.querySelector('[data-testid="counter-value"]').textContent = 0;
+    document.getElementById('login-status').textContent = '';
+    document.getElementById('checkbox-result').textContent = '';
+    document.getElementById('contact-alert').className = 'alert';
+    document.getElementById('order-alert').className = 'alert';
+  }
+</script>
+
+</body>
+</html>
