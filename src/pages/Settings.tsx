@@ -87,7 +87,7 @@ export default function Settings() {
         <div className="card">
           <h2>Notifications</h2>
           <Toggle
-            label="Email Notifications"
+            label="Email Alerts"
             checked={settings.emailNotifications}
             testId="toggle-email"
             onChange={(v) => setSettings({ ...settings, emailNotifications: v })}

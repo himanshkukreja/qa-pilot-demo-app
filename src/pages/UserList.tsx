@@ -130,7 +130,7 @@ export default function UserList() {
           style={{ marginTop: 12, fontSize: 13, color: '#888' }}
           data-testid="user-count"
         >
-          {users.length} user(s) found
+          {users.length} member(s) found
         </p>
       </div>
     </div>
