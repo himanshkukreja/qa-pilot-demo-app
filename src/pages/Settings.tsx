@@ -75,7 +75,7 @@ export default function Settings() {
 
   return (
     <div>
-      <h1 data-testid="settings-title">Settings</h1>
+      <h1 data-testid="settings-title">Preferences</h1>
 
       {success && (
         <div className="alert alert-success" data-testid="settings-success">
@@ -103,7 +103,7 @@ export default function Settings() {
             onChange={(v) => setSettings({ ...settings, darkMode: v })}
           />
           <Toggle
-            label="Auto-Save"
+            label="Auto-Sync"
             checked={settings.autoSave}
             testId="toggle-auto-save"
             onChange={(v) => setSettings({ ...settings, autoSave: v })}
