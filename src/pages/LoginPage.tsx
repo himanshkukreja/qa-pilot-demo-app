@@ -79,7 +79,7 @@ export default function LoginPage() {
             data-testid="login-submit"
             style={{ width: '100%' }}
           >
-            {loading ? 'Signing in...' : 'Sign In'}
+            {loading ? 'Please wait...' : 'Log In'}
           </button>
         </form>
 

@@ -44,7 +44,7 @@ export default function UserList() {
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-        <h1 data-testid="users-title">Users</h1>
+        <h1 data-testid="users-title">Team Members</h1>
       </div>
 
       <div className="card">
