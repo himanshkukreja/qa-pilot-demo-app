@@ -84,7 +84,7 @@ export default function LoginPage() {
         </form>
 
         <p style={{ textAlign: 'center', marginTop: 16, color: '#888', fontSize: 13 }}>
-          Demo credentials: test@example.com / password123
+          Use any email and password to sign in.
         </p>
       </div>
     </div>

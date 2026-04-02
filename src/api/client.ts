@@ -26,11 +26,12 @@ function delay(ms: number) {
 export async function loginUser(email: string, password: string) {
   // Simulates: fetch('/api/auth/login', { method: 'POST', body: { email, password } })
   await delay(500)
-  if (email === 'test@example.com' && password === 'password123') {
-    const token = 'fake-jwt-token-' + Date.now()
-    return { token, user: { name: 'Test User', email } }
+  if (!email || !password) {
+    throw new Error('Email and password are required')
   }
-  throw new Error('Invalid credentials')
+  // Accept any non-empty credentials
+  const token = 'fake-jwt-token-' + Date.now()
+  return { token, user: { name: email.split('@')[0] || 'User', email } }
 }
 
 // ── Users API ───────────────────────────────────────────────
