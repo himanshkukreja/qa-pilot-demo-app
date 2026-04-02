@@ -35,7 +35,7 @@ export default function LoginPage() {
   return (
     <div className="login-container">
       <div className="login-card">
-        <h1 data-testid="login-title">Sign In</h1>
+        <h1 data-testid="login-title">Log In</h1>
 
         {error && (
           <div className="alert alert-error" data-testid="login-error">
@@ -45,7 +45,7 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} data-testid="login-form">
           <div className="form-group">
-            <label htmlFor="email">Email Address</label>
+            <label htmlFor="email">Email Id</label>
             <input
               id="email"
               name="email"
