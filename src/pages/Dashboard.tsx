@@ -38,7 +38,7 @@ export default function Dashboard() {
         </div>
         <div className="stat-card" data-testid="stat-total-tests">
           <div className="stat-value">{loading ? '...' : stats.totalTests}</div>
-          <div className="stat-label">Tests Run</div>
+          <div className="stat-label">Test Executions</div>
         </div>
       </div>
 
