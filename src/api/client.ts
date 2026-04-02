@@ -11,7 +11,7 @@
 
 // Simulated user database
 const USERS = [
-  { id: 1, name: 'Alice Johnson', email: 'alice@example.com', role: 'admin', status: 'active' },
+  { id: 1, name: 'Alice Chen', email: 'alice@example.com', role: 'admin', status: 'active' },
   { id: 2, name: 'Bob Smith', email: 'bob@example.com', role: 'editor', status: 'active' },
   { id: 3, name: 'Carol Davis', email: 'carol@example.com', role: 'viewer', status: 'inactive' },
   { id: 4, name: 'David Lee', email: 'david@example.com', role: 'editor', status: 'active' },
