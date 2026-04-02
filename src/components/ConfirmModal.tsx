@@ -28,7 +28,7 @@ export default function ConfirmModal({
             onClick={onCancel}
             data-testid="modal-cancel"
           >
-            Cancel
+            Go back
           </button>
           <button
             className="btn btn-danger"
