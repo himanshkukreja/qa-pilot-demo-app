@@ -64,7 +64,7 @@ export default function UserDetail() {
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-        <h1 data-testid="user-detail-title">User Profile</h1>
+        <h1 data-testid="user-detail-title">Edit User</h1>
         <button
           className="btn btn-danger"
           onClick={() => setShowDeleteModal(true)}

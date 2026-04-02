@@ -46,7 +46,7 @@ export default function Dashboard() {
         <h2>Quick Links</h2>
         <div className="quick-links">
           <Link to="/users" className="quick-link" data-testid="link-manage-users">
-            👥 Manage Users
+            👥 View All Users
           </Link>
           <Link to="/settings" className="quick-link" data-testid="link-settings">
             ⚙️ Settings
