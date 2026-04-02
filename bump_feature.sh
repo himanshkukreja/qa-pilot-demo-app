@@ -123,10 +123,13 @@ if [[ "$NUM_CHANGES" -gt "$TOTAL" ]]; then
 fi
 
 # ── Find applicable changes across different files ────────────────────────────
+# Parallel arrays instead of associative array (macOS ships Bash 3.2)
 APPLIED=()        # descriptions
 APPLIED_FILES=()  # unique files that were changed
+SUB_FILES=()      # per-substitution file path
+SUB_OLDS=()       # per-substitution old text
+SUB_NEWS=()       # per-substitution new text
 CHANGE_COUNT=0
-declare -A FILE_SUBS  # file -> newline-separated "OLD|||NEW" pairs
 
 for IDX in "${ORDER[@]}"; do
   [[ "$CHANGE_COUNT" -ge "$NUM_CHANGES" ]] && break
@@ -144,12 +147,10 @@ for IDX in "${ORDER[@]}"; do
     continue  # neither direction applies
   fi
 
-  # Track this substitution
-  if [[ -z "${FILE_SUBS[$FILE]:-}" ]]; then
-    FILE_SUBS[$FILE]="${OLD}|||${NEW}"
-  else
-    FILE_SUBS[$FILE]="${FILE_SUBS[$FILE]}"$'\n'"${OLD}|||${NEW}"
-  fi
+  # Store substitution
+  SUB_FILES+=("$FILE")
+  SUB_OLDS+=("$OLD")
+  SUB_NEWS+=("$NEW")
   APPLIED+=("  • $FILE — $DESC")
 
   # Track unique files
@@ -186,13 +187,9 @@ else
 fi
 
 # ── Apply all changes ─────────────────────────────────────────────────────────
-for FILE in "${APPLIED_FILES[@]}"; do
-  while IFS= read -r line; do
-    OLD="${line%%|||*}"
-    NEW="${line##*|||}"
-    # macOS sed needs '' for in-place edit
-    sed -i '' "s|${OLD}|${NEW}|g" "$FILE"
-  done <<< "${FILE_SUBS[$FILE]}"
+for (( i=0; i<CHANGE_COUNT; i++ )); do
+  # macOS sed needs '' for in-place edit
+  sed -i '' "s|${SUB_OLDS[$i]}|${SUB_NEWS[$i]}|g" "${SUB_FILES[$i]}"
 done
 
 # ── Build commit message ──────────────────────────────────────────────────────
