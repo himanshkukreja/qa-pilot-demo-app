@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
-# bump_feature.sh — make a small change to index.html on a feature branch and push it.
+# bump_feature.sh — make a small change to the React demo app on a feature branch and push it.
+#
+# This creates a realistic PR diff that the narrative-qa pipeline will analyze:
+#   code analysis → route/API/flow extraction
+#   DOM extraction → element/locator inventory
+#   combined context → LLM-ready test generation input
+#
 # Usage:
 #   ./bump_feature.sh                        # auto branch name: feature/bump-YYYYMMDD-HHMMSS
 #   ./bump_feature.sh feature/my-branch      # explicit branch name
@@ -12,31 +18,48 @@ cd "$SCRIPT_DIR"
 # ── Branch name ────────────────────────────────────────────────────────────────
 BRANCH="${1:-feature/bump-$(date +%Y%m%d-%H%M%S)}"
 
-# ── Pool of realistic changes ──────────────────────────────────────────────────
-# Each entry: DESCRIPTION | OLD_TEXT | NEW_TEXT
+# ── Pool of realistic React app changes ────────────────────────────────────────
+# Each entry: FILE | DESCRIPTION | OLD_TEXT | NEW_TEXT
 # sed uses | as delimiter so avoid | in the strings themselves
 CHANGES=(
-  "Add password strength hint to login form|placeholder=\"Enter password\"|placeholder=\"Min 8 chars, 1 number\""
-  "Rename Sign In button to Log In|>Sign In<|>Log In<"
-  "Update counter max step to 5|onclick=\"adjustCounter(1)\">+<|onclick=\"adjustCounter(5)\">+5<"
-  "Change counter decrement label|onclick=\"adjustCounter(-1)\">−<|onclick=\"adjustCounter(-5)\">−5<"
-  "Add required note to contact name|placeholder=\"Jane Smith\"|placeholder=\"Jane Smith (required)\""
-  "Add more info to overview tab|It shows a summary of all activity.|It shows a summary of all activity and recent test runs."
-  "Update disabled button label|>Disabled Button<|>Coming Soon<"
-  "Rename Clear All Data to Reset All|>Clear All Data<|>Reset All<"
-  "Change quantity selector max to 20|min=\"1\" max=\"10\" value=\"1\"|min=\"1\" max=\"20\" value=\"1\""
-  "Update contact form submit button label|>Send Message<|>Submit Message<"
-  "Add extra_context to confirm modal text|You can confirm or cancel the action.|You can confirm or cancel the action. This cannot be undone."
-  "Rename Details tab to Config|>Details<|>Config<"
-  "Change History tab label to Logs|>History<|>Logs<"
-  "Update page subtitle|Interactive elements for automated E2E testing|Demo app for QA Pilot E2E automation"
+  # LoginPage changes
+  "src/pages/LoginPage.tsx|Rename login title from Sign In to Log In|>Sign In<|>Log In<"
+  "src/pages/LoginPage.tsx|Update login button text|>Sign in<|>Continue<"
+  "src/pages/LoginPage.tsx|Add placeholder hint to email field|placeholder=\"you@example.com\"|placeholder=\"Enter your work email\""
+  "src/pages/LoginPage.tsx|Update password placeholder|placeholder=\"••••••••\"|placeholder=\"Min 8 characters\""
+  # Dashboard changes
+  "src/pages/Dashboard.tsx|Rename Dashboard title|>Dashboard<|>Overview<"
+  "src/pages/Dashboard.tsx|Update Total Users label|>Total Users<|>All Users<"
+  "src/pages/Dashboard.tsx|Rename Active Users stat|>Active Users<|>Online Now<"
+  "src/pages/Dashboard.tsx|Update Total Tests label|>Total Tests<|>Test Runs<"
+  # UserList changes
+  "src/pages/UserList.tsx|Update user list title|>User Management<|>Team Members<"
+  "src/pages/UserList.tsx|Update search placeholder|placeholder=\"Search users...\"|placeholder=\"Find by name or email...\""
+  "src/pages/UserList.tsx|Rename Edit link text|>Edit<|>View Profile<"
+  # UserDetail changes
+  "src/pages/UserDetail.tsx|Rename Save button|>Save Changes<|>Update Profile<"
+  "src/pages/UserDetail.tsx|Update delete button text|>Delete User<|>Remove User<"
+  "src/pages/UserDetail.tsx|Update back link text|>← Back to Users<|>← Back to Team<"
+  # Settings changes
+  "src/pages/Settings.tsx|Rename settings title|>Settings<|>Preferences<"
+  "src/pages/Settings.tsx|Update save button text|>Save Settings<|>Apply Changes<"
+  "src/pages/Settings.tsx|Rename Email Notifications label|>Email Notifications<|>Email Alerts<"
+  "src/pages/Settings.tsx|Update Dark Mode label|>Dark Mode<|>Night Theme<"
+  # Layout / navigation changes
+  "src/components/Layout.tsx|Rename app title in sidebar|>QA Pilot Demo<|>QA Pilot App<"
+  "src/components/Layout.tsx|Rename Dashboard nav link|📊 Dashboard|📊 Overview"
+  "src/components/Layout.tsx|Rename Users nav link|👥 Users|👥 Team"
+  "src/components/Layout.tsx|Update logout button text|>Logout<|>Sign Out<"
+  # ConfirmModal changes
+  "src/components/ConfirmModal.tsx|Rename modal cancel button|>Cancel<|>Go Back<"
 )
 
 # Pick a random change
 IDX=$(( RANDOM % ${#CHANGES[@]} ))
-IFS='|' read -r DESCRIPTION OLD NEW <<< "${CHANGES[$IDX]}"
+IFS='|' read -r FILE DESCRIPTION OLD NEW <<< "${CHANGES[$IDX]}"
 
 echo "Branch  : $BRANCH"
+echo "File    : $FILE"
 echo "Change  : $DESCRIPTION"
 echo ""
 
@@ -51,8 +74,6 @@ else
 fi
 
 # ── Apply the change ──────────────────────────────────────────────────────────
-FILE="index.html"
-
 if ! grep -qF "$OLD" "$FILE"; then
   echo "⚠️  Pattern not found in $FILE — the file may have already been changed."
   echo "    OLD: $OLD"
@@ -65,11 +86,18 @@ sed -i '' "s|${OLD}|${NEW}|" "$FILE"
 
 # ── Commit ────────────────────────────────────────────────────────────────────
 git add "$FILE"
-git commit -m "$DESCRIPTION"
+git commit -m "$DESCRIPTION
+
+Changed: $FILE
+Previous: $OLD
+Updated:  $NEW"
 
 # ── Push ─────────────────────────────────────────────────────────────────────
 git push -u origin "$BRANCH"
 
 echo ""
 echo "✅  Done. Branch '$BRANCH' pushed."
-echo "   → Open a PR on GitHub: https://github.com/himanshkukreja/qa-pilot-demo-app/compare/$BRANCH"
+echo "    File:   $FILE"
+echo "    Change: $DESCRIPTION"
+echo ""
+echo "   → Open a PR on GitHub to trigger the QA pipeline"
