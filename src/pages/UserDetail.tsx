@@ -38,7 +38,7 @@ export default function UserDetail() {
     try {
       // Code analyzer will detect: fetch(`/api/users/${id}`, { method: 'PUT', body: user })
       await updateUser(Number(id), user)
-      setSuccess('User updated successfully!')
+      setSuccess('Profile saved!')
     } catch (err: any) {
       setError(err.message || 'Failed to update user')
     } finally {
