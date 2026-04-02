@@ -6,6 +6,9 @@
 #   DOM extraction → element/locator inventory
 #   combined context → LLM-ready test generation input
 #
+# Every change is BIDIRECTIONAL (A↔B) so the script always has something to
+# toggle, even after many consecutive runs.
+#
 # Usage:
 #   ./bump_feature.sh                        # auto branch name: feature/bump-YYYYMMDD-HHMMSS
 #   ./bump_feature.sh feature/my-branch      # explicit branch name
@@ -18,45 +21,76 @@ cd "$SCRIPT_DIR"
 # ── Branch name ────────────────────────────────────────────────────────────────
 BRANCH="${1:-feature/bump-$(date +%Y%m%d-%H%M%S)}"
 
-# ── Pool of realistic React app changes ────────────────────────────────────────
-# Each entry: FILE | DESCRIPTION | OLD_TEXT | NEW_TEXT
-# sed uses | as delimiter so avoid | in the strings themselves
-CHANGES=(
-  # LoginPage changes
-  "src/pages/LoginPage.tsx|Rename login title from Sign In to Log In|>Sign In<|>Log In<"
-  "src/pages/LoginPage.tsx|Update login button text|>Sign in<|>Continue<"
-  "src/pages/LoginPage.tsx|Add placeholder hint to email field|placeholder=\"you@example.com\"|placeholder=\"Enter your work email\""
-  "src/pages/LoginPage.tsx|Update password placeholder|placeholder=\"••••••••\"|placeholder=\"Min 8 characters\""
-  # Dashboard changes
-  "src/pages/Dashboard.tsx|Rename Dashboard title|>Dashboard<|>Overview<"
-  "src/pages/Dashboard.tsx|Update Total Users label|>Total Users<|>All Users<"
+# ── Pool of bidirectional changes ──────────────────────────────────────────────
+# Each entry: FILE | DESCRIPTION_A→B | TEXT_A | TEXT_B
+# The script checks which direction applies and uses it.
+# sed uses | as delimiter — avoid | in the text strings.
+PAIRS=(
+  # LoginPage
+  "src/pages/LoginPage.tsx|Rename login title|>Sign In</h1>|>Log In</h1>"
+  "src/pages/LoginPage.tsx|Update email placeholder|Enter your email|Enter your work email"
+  "src/pages/LoginPage.tsx|Update password placeholder|Enter your password|Min 8 characters"
+  "src/pages/LoginPage.tsx|Update login hint text|Use any email and password to sign in.|Enter any credentials to continue."
+  # Dashboard
+  "src/pages/Dashboard.tsx|Rename Dashboard page title|>Dashboard</h1>|>Overview</h1>"
+  "src/pages/Dashboard.tsx|Rename Total Users stat|>Total Users<|>All Users<"
   "src/pages/Dashboard.tsx|Rename Active Users stat|>Active Users<|>Online Now<"
-  "src/pages/Dashboard.tsx|Update Total Tests label|>Total Tests<|>Test Runs<"
-  # UserList changes
-  "src/pages/UserList.tsx|Update user list title|>User Management<|>Team Members<"
-  "src/pages/UserList.tsx|Update search placeholder|placeholder=\"Search users...\"|placeholder=\"Find by name or email...\""
-  "src/pages/UserList.tsx|Rename Edit link text|>Edit<|>View Profile<"
-  # UserDetail changes
-  "src/pages/UserDetail.tsx|Rename Save button|>Save Changes<|>Update Profile<"
-  "src/pages/UserDetail.tsx|Update delete button text|>Delete User<|>Remove User<"
-  "src/pages/UserDetail.tsx|Update back link text|>← Back to Users<|>← Back to Team<"
-  # Settings changes
-  "src/pages/Settings.tsx|Rename settings title|>Settings<|>Preferences<"
-  "src/pages/Settings.tsx|Update save button text|>Save Settings<|>Apply Changes<"
-  "src/pages/Settings.tsx|Rename Email Notifications label|>Email Notifications<|>Email Alerts<"
-  "src/pages/Settings.tsx|Update Dark Mode label|>Dark Mode<|>Night Theme<"
-  # Layout / navigation changes
-  "src/components/Layout.tsx|Rename app title in sidebar|>QA Pilot Demo<|>QA Pilot App<"
-  "src/components/Layout.tsx|Rename Dashboard nav link|📊 Dashboard|📊 Overview"
+  "src/pages/Dashboard.tsx|Rename Tests Run stat|>Tests Run<|>Test Executions<"
+  "src/pages/Dashboard.tsx|Rename Quick Links heading|>Quick Links<|>Shortcuts<"
+  "src/pages/Dashboard.tsx|Update Manage Users link|👥 Manage Users|👥 View All Users"
+  # UserList
+  "src/pages/UserList.tsx|Rename Users page title|>Users</h1>|>Team Members</h1>"
+  "src/pages/UserList.tsx|Update search placeholder|Search users by name or email...|Find team members..."
+  "src/pages/UserList.tsx|Update result count label|user(s) found|member(s) found"
+  # UserDetail
+  "src/pages/UserDetail.tsx|Rename Edit User title|>Edit User</h1>|>User Profile</h1>"
+  "src/pages/UserDetail.tsx|Rename Delete User button and modal|Delete User|Remove User"
+  "src/pages/UserDetail.tsx|Rename Save Changes button|Save Changes|Update Profile"
+  "src/pages/UserDetail.tsx|Update name placeholder|placeholder=\"Full Name\"|placeholder=\"Enter full name\""
+  # Settings
+  "src/pages/Settings.tsx|Rename Settings page title|>Settings</h1>|>Preferences</h1>"
+  "src/pages/Settings.tsx|Rename Notifications section|>Notifications</h2>|>Alerts</h2>"
+  "src/pages/Settings.tsx|Rename Email Notifications toggle|Email Notifications|Email Alerts"
+  "src/pages/Settings.tsx|Rename Dark Mode toggle|Dark Mode|Night Theme"
+  "src/pages/Settings.tsx|Rename Auto-Save toggle|Auto-Save|Auto-Sync"
+  "src/pages/Settings.tsx|Rename Save Settings button|Save Settings|Apply Changes"
+  # Layout / navigation
+  "src/components/Layout.tsx|Rename sidebar app title|>QA Pilot Demo<|>QA Pilot App<"
+  "src/components/Layout.tsx|Rename Dashboard nav link|📊 Dashboard|📊 Home"
   "src/components/Layout.tsx|Rename Users nav link|👥 Users|👥 Team"
-  "src/components/Layout.tsx|Update logout button text|>Logout<|>Sign Out<"
-  # ConfirmModal changes
-  "src/components/ConfirmModal.tsx|Rename modal cancel button|>Cancel<|>Go Back<"
+  # ConfirmModal
+  "src/components/ConfirmModal.tsx|Rename modal confirm button|>Confirm<|>Yes, proceed<"
 )
 
-# Pick a random change
-IDX=$(( RANDOM % ${#CHANGES[@]} ))
-IFS='|' read -r FILE DESCRIPTION OLD NEW <<< "${CHANGES[$IDX]}"
+# ── Shuffle the pool (Fisher-Yates) ──────────────────────────────────────────
+TOTAL=${#PAIRS[@]}
+ORDER=()
+for (( i=0; i<TOTAL; i++ )); do ORDER+=("$i"); done
+for (( i=TOTAL-1; i>0; i-- )); do
+  j=$(( RANDOM % (i + 1) ))
+  tmp=${ORDER[$i]}; ORDER[$i]=${ORDER[$j]}; ORDER[$j]=$tmp
+done
+
+# ── Find a change that applies (try A→B first, then B→A) ─────────────────────
+FOUND=0
+for IDX in "${ORDER[@]}"; do
+  IFS='|' read -r FILE DESC TEXT_A TEXT_B <<< "${PAIRS[$IDX]}"
+  if grep -qF "$TEXT_A" "$FILE" 2>/dev/null; then
+    OLD="$TEXT_A"; NEW="$TEXT_B"
+    DESCRIPTION="$DESC (A→B)"
+    FOUND=1; break
+  elif grep -qF "$TEXT_B" "$FILE" 2>/dev/null; then
+    OLD="$TEXT_B"; NEW="$TEXT_A"
+    DESCRIPTION="$DESC (B→A)"
+    FOUND=1; break
+  fi
+done
+
+if [[ $FOUND -eq 0 ]]; then
+  echo "❌  No applicable changes found — all patterns exhausted."
+  echo "    Try resetting to main: git checkout main"
+  exit 1
+fi
 
 echo "Branch  : $BRANCH"
 echo "File    : $FILE"
@@ -65,7 +99,6 @@ echo ""
 
 # ── Checkout / create branch from main ────────────────────────────────────────
 git fetch origin main --quiet
-CURRENT_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
 
 if git show-ref --verify --quiet "refs/heads/$BRANCH"; then
   git checkout "$BRANCH"
@@ -74,21 +107,14 @@ else
 fi
 
 # ── Apply the change ──────────────────────────────────────────────────────────
-if ! grep -qF "$OLD" "$FILE"; then
-  echo "⚠️  Pattern not found in $FILE — the file may have already been changed."
-  echo "    OLD: $OLD"
-  echo "Skipping edit, nothing to commit."
-  exit 0
-fi
-
 # macOS sed needs '' for in-place edit
-sed -i '' "s|${OLD}|${NEW}|" "$FILE"
+sed -i '' "s|${OLD}|${NEW}|g" "$FILE"
 
 # ── Commit ────────────────────────────────────────────────────────────────────
 git add "$FILE"
 git commit -m "$DESCRIPTION
 
-Changed: $FILE
+File:     $FILE
 Previous: $OLD
 Updated:  $NEW"
 
