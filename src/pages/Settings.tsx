@@ -85,7 +85,7 @@ export default function Settings() {
 
       <form onSubmit={handleSave}>
         <div className="card">
-          <h2>Notifications</h2>
+          <h2>Alerts</h2>
           <Toggle
             label="Email Notifications"
             checked={settings.emailNotifications}
