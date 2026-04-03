@@ -70,7 +70,7 @@ export default function UserDetail() {
           onClick={() => setShowDeleteModal(true)}
           data-testid="delete-user-btn"
         >
-          Delete User
+          Remove User
         </button>
       </div>
 
@@ -153,7 +153,7 @@ export default function UserDetail() {
 
       {showDeleteModal && (
         <ConfirmModal
-          title="Delete User"
+          title="Remove User"
           message={`Are you sure you want to delete "${user.name}"? This is permanent and cannot be reversed.`}
           onConfirm={handleDelete}
           onCancel={() => setShowDeleteModal(false)}

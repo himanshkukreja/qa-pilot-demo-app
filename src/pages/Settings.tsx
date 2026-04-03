@@ -87,7 +87,7 @@ export default function Settings() {
         <div className="card">
           <h2>Notifications</h2>
           <Toggle
-            label="Email Notifications"
+            label="Email Alerts"
             checked={settings.emailNotifications}
             testId="toggle-email"
             onChange={(v) => setSettings({ ...settings, emailNotifications: v })}
@@ -97,13 +97,13 @@ export default function Settings() {
         <div className="card">
           <h2>Appearance</h2>
           <Toggle
-            label="Night Theme"
+            label="Dark Mode"
             checked={settings.darkMode}
             testId="toggle-dark-mode"
             onChange={(v) => setSettings({ ...settings, darkMode: v })}
           />
           <Toggle
-            label="Auto-Sync"
+            label="Auto-Save"
             checked={settings.autoSave}
             testId="toggle-auto-save"
             onChange={(v) => setSettings({ ...settings, autoSave: v })}
