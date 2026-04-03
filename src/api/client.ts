@@ -100,6 +100,6 @@ export async function fetchDashboardStats() {
   return {
     totalUsers: USERS.length,
     activeUsers: USERS.filter((u) => u.status === 'active').length,
-    totalTests: 142,
+    totalTests: 256,
   }
 }
