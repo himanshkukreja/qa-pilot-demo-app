@@ -35,7 +35,7 @@ export default function LoginPage() {
   return (
     <div className="login-container">
       <div className="login-card">
-        <h1 data-testid="login-title">Log In</h1>
+        <h1 data-testid="login-title">Sign In</h1>
 
         {error && (
           <div className="alert alert-error" data-testid="login-error">
@@ -84,7 +84,7 @@ export default function LoginPage() {
         </form>
 
         <p style={{ textAlign: 'center', marginTop: 16, color: '#888', fontSize: 13 }}>
-          Enter any credentials to continue.
+          Use any email and password to sign in.
         </p>
       </div>
     </div>

@@ -103,7 +103,7 @@ export default function Settings() {
             onChange={(v) => setSettings({ ...settings, darkMode: v })}
           />
           <Toggle
-            label="Auto-Save"
+            label="Auto-Sync"
             checked={settings.autoSave}
             testId="toggle-auto-save"
             onChange={(v) => setSettings({ ...settings, autoSave: v })}

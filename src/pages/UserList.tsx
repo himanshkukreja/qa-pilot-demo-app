@@ -52,7 +52,7 @@ export default function UserList() {
           <input
             name="search"
             type="text"
-            placeholder="Find team members..."
+            placeholder="Search users by name or email..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             data-testid="search-input"
