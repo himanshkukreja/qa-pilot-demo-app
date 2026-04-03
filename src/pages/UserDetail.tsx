@@ -93,7 +93,7 @@ export default function UserDetail() {
               id="name"
               name="name"
               type="text"
-              placeholder="Full Name"
+              placeholder="Enter full name"
               value={user.name}
               onChange={(e) => setUser({ ...user, name: e.target.value })}
               required

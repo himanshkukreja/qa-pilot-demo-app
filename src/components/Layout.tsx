@@ -9,12 +9,12 @@ export default function Layout() {
   return (
     <div className="layout">
       <nav className="sidebar" data-testid="sidebar-nav">
-        <h2>QA Pilot App</h2>
+        <h2>QA Pilot Demo</h2>
         <NavLink to="/dashboard" data-testid="nav-dashboard">
-          📊 Dashboard
+          📊 Home
         </NavLink>
         <NavLink to="/users" data-testid="nav-users">
-          👥 Users
+          👥 Team
         </NavLink>
         <NavLink to="/settings" data-testid="nav-settings">
           ⚙️ Settings
