@@ -52,7 +52,7 @@ export default function Dashboard() {
             ⚙️ Settings
           </Link>
           <Link to="/users?role=admin" className="quick-link" data-testid="link-view-admins">
-            🛡️ Admin Panel
+            🛡️ View Admins
           </Link>
           <a
             href="https://docs.example.com"

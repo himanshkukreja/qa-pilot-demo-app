@@ -97,7 +97,7 @@ export default function Settings() {
         <div className="card">
           <h2>Appearance</h2>
           <Toggle
-            label="Dark Mode"
+            label="Night Theme"
             checked={settings.darkMode}
             testId="toggle-dark-mode"
             onChange={(v) => setSettings({ ...settings, darkMode: v })}

@@ -25,7 +25,7 @@ export default function Layout() {
           data-testid="logout-btn"
           style={{ marginTop: 'auto' }}
         >
-          Sign Out
+          Logout
         </button>
       </nav>
       <main className="main-content">
