@@ -14,7 +14,7 @@ export default function Layout() {
           📊 Home
         </NavLink>
         <NavLink to="/users" data-testid="nav-users">
-          👥 Team
+          👥 Users
         </NavLink>
         <NavLink to="/settings" data-testid="nav-settings">
           ⚙️ Settings

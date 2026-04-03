@@ -79,12 +79,12 @@ export default function LoginPage() {
             data-testid="login-submit"
             style={{ width: '100%' }}
           >
-            {loading ? 'Please wait...' : 'Log In'}
+            {loading ? 'Signing in...' : 'Log In'}
           </button>
         </form>
 
         <p style={{ textAlign: 'center', marginTop: 16, color: '#888', fontSize: 13 }}>
-          Enter any credentials to continue.
+          Use any email and password to sign in.
         </p>
       </div>
     </div>

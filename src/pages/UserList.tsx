@@ -118,7 +118,7 @@ export default function UserList() {
               {users.length === 0 && (
                 <tr>
                   <td colSpan={5} style={{ textAlign: 'center', color: '#888', padding: 24 }}>
-                    No users found
+                    No matching members
                   </td>
                 </tr>
               )}
@@ -130,7 +130,7 @@ export default function UserList() {
           style={{ marginTop: 12, fontSize: 13, color: '#888' }}
           data-testid="user-count"
         >
-          {users.length} member(s) found
+          {users.length} user(s) found
         </p>
       </div>
     </div>
