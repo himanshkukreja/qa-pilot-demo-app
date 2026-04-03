@@ -1,7 +1,7 @@
 import { NavLink, Outlet } from 'react-router-dom'
 
 export default function Layout() {
-  const handleSign Out = () => {
+  const handleSignOut = () => {
     localStorage.removeItem('token')
     window.location.href = '/login'
   }
@@ -21,7 +21,7 @@ export default function Layout() {
         </NavLink>
         <button
           className="btn btn-secondary"
-          onClick={handleSign Out}
+          onClick={handleSignOut}
           data-testid="logout-btn"
           style={{ marginTop: 'auto' }}
         >

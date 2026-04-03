@@ -84,7 +84,7 @@ export default function LoginPage() {
         </form>
 
         <p style={{ textAlign: 'center', marginTop: 16, color: '#888', fontSize: 13 }}>
-          Use any email and password to sign in.
+          Enter any credentials to continue.
         </p>
       </div>
     </div>

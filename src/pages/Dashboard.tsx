@@ -43,7 +43,7 @@ export default function Dashboard() {
       </div>
 
       <div className="card">
-        <h2>Quick Links</h2>
+        <h2>Shortcuts</h2>
         <div className="quick-links">
           <Link to="/users" className="quick-link" data-testid="link-manage-users">
             👥 Manage Users
