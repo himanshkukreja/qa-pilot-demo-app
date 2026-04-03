@@ -36,7 +36,7 @@ export default function Settings() {
     try {
       // Code analyzer detects: fetch('/api/settings', { method: 'PUT', body: settings })
       await saveSettings(settings)
-      setSuccess('Settings saved successfully!')
+      setSuccess('Preferences updated!')
     } catch {
       setSuccess('')
     } finally {
@@ -103,7 +103,7 @@ export default function Settings() {
             onChange={(v) => setSettings({ ...settings, darkMode: v })}
           />
           <Toggle
-            label="Auto-Sync"
+            label="Auto-Save"
             checked={settings.autoSave}
             testId="toggle-auto-save"
             onChange={(v) => setSettings({ ...settings, autoSave: v })}
